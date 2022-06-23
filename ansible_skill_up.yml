@@ -1,0 +1,25 @@
+---
+- hosts: localhost
+  roles:
+    - up_vms
+
+- hosts: ansible_skillup_*
+  roles:
+    - update_packages
+
+- hosts: ansible_skillup_db_*
+  roles:
+    - install_mysql
+
+- hosts: ansible_skillup_web_*
+  roles:
+    - install_nginx
+
+- hosts: ansible_skillup_db_*
+  roles:
+    - deploy_bases
+
+- hosts: ansible_skillup_web_*
+  roles:
+    - deploy_sites
+

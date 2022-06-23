@@ -1,0 +1,92 @@
+- name: Add MariaDB.repo
+  template:
+    src: MariaDB.repo.j2
+    dest: /etc/yum.repos.d/MariaDB.repo
+
+- name: install MariaDB packages
+  yum:
+    name: ['MariaDB-server', 'MariaDB-client', 'MySQL-python']
+    state: latest
+
+- name: Ensure mariadb service is running
+  systemd:
+    name: mariadb
+    state: started
+    enabled: yes
+
+- name: Ensure root user can only login from localhost
+  mysql_user:
+    login_password: "{{ mysql_root_password }}"
+    check_implicit_admin: yes
+    name: root
+    host: "{{ item }}"
+    password: "{{ mysql_root_password }}"
+    state: present
+  with_items:
+    - localhost
+    - 127.0.0.1
+    - ::1
+
+- name: Add .my.cnf to root home
+  template:
+    src: root-my.cnf.j2
+    dest: /root/.my.cnf
+
+#Make config file and restart MariDB
+- name: copy MariaDB config 
+  template:
+    src: my.cnf.j2
+    dest: /etc/my.cnf
+  notify:
+    - Restart MariaDB
+
+#Make somethig like mysql_secure_installation 
+- name: Reload privilege tables
+  command: |
+    mysql -p{{ mysql_root_password }} -ne "{{ item }}"
+  with_items:
+    - FLUSH PRIVILEGES
+  changed_when: False
+
+- name: Remove anonymous users
+  command: |
+    mysql -p{{ mysql_root_password }} -ne "{{ item }}"
+  with_items:
+    - DELETE FROM mysql.user WHERE User=''
+  changed_when: False
+
+- name: Disallow root login remotely
+  command: |
+    mysql -p{{ mysql_root_password }} -ne "{{ item }}"
+  with_items:
+    - DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')
+  changed_when: False
+
+- name: Remove test database and access to it
+  command: |
+    mysql -p{{ mysql_root_password }} -ne "{{ item }}"
+  with_items:
+    - DROP DATABASE IF EXISTS test
+    - DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%'
+  changed_when: False
+
+- name: Reload privilege tables
+  command: |
+    mysql -p{{ mysql_root_password }} -ne "{{ item }}"
+  with_items:
+    - FLUSH PRIVILEGES
+  changed_when: False
+
+#Create firewall rules + enable and start iptables
+- name: Add iptables config
+  template:
+    src: redhat-iptables.j2
+    dest: /etc/sysconfig/iptables
+
+- name: Enable and restart iptables service
+  systemd:
+    name: iptables
+    state: restarted
+    enabled: yes
+
+

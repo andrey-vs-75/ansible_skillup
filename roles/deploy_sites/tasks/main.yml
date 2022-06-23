@@ -1,0 +1,10 @@
+---
+# tasks file for deploy_sites
+- name: deploy sites for RHEL
+  import_tasks: redhat.yml
+  when: ansible_facts['os_family']|lower == 'redhat'
+
+- name: deploy sites for Debian
+  import_tasks: debian.yml
+  when: ansible_facts['os_family']|lower == 'debian'
+

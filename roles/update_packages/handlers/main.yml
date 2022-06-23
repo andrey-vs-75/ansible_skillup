@@ -1,0 +1,6 @@
+---
+# handlers file for update_packages
+- name: Restart Server
+  reboot:
+    post_reboot_delay: 300
+

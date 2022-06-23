@@ -1,0 +1,112 @@
+- name: Creates /var/www/ directory
+  file:
+    path: /var/www/
+    owner: nginx
+    group: nginx
+    state: directory
+
+- name: Creates site directories
+  file:
+    path: /var/www/{{item.dbname}}
+    owner: nginx
+    group: nginx
+    state: directory
+  with_items: "{{ sites }}"
+
+#Add php-fpm configs
+- name: chown php-fpm logdir
+  file:
+    path: /var/log/php-fpm
+    owner: nginx
+    group: nginx
+    state: directory
+
+- name: Creates php-fpm session directories
+  file:
+    path: /var/lib/php/{{item.dbname}}/session
+    owner: nginx
+    group: nginx
+    state: directory
+  with_items: "{{ sites }}"
+
+- name: Creates php-fpm wsdlcache directories
+  file:
+    path: /var/lib/php/{{item.dbname}}/wsdlcache
+    owner: nginx
+    group: nginx
+    state: directory
+  with_items: "{{ sites }}"
+
+- name: Creates php-fpm opcache directories
+  file:
+    path: /var/lib/php/{{item.dbname}}/opcache
+    owner: nginx
+    group: nginx
+    state: directory
+  with_items: "{{ sites }}"
+
+#Make config files and restart php-fpm
+- name: copy php-fpm config
+  template:
+    src: php-fpm-centos.conf.j2
+    dest: /etc/php/7.4/fpm/pool.d/{{item.dbname}}.conf
+  with_items: "{{ sites }}"
+  notify:
+    - Restart php7.4-fpm
+
+#add nginx configs
+#Make config site files and restart nginx
+- name: copy nginx config
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/conf.d/{{item.name}}.conf
+  with_items: "{{ sites }}"
+  notify:
+    - Restart nginx
+
+#add sites
+- name: Generate index.html files
+  template:
+    src: index.j2
+    dest: /var/www/{{item.dbname}}/index.html
+    owner: nginx
+    group: nginx
+    mode: 0644
+  with_items: "{{ sites }}"
+
+- name: Copy Site's files to Servers
+  copy:
+    src: 01.jpg
+    dest: /var/www/{{item.dbname}}/
+    owner: nginx
+    group: nginx
+    mode: 0644
+  with_items: "{{ sites }}"
+
+- name: Copy Site's files to Servers
+  copy:
+    src: 02.jpg
+    dest: /var/www/{{item.dbname}}/
+    owner: nginx
+    group: nginx
+    mode: 0644
+  with_items: "{{ sites }}"
+
+- name: Copy Site's files to Servers
+  copy:
+    src: info.php
+    dest: /var/www/{{item.dbname}}/
+    owner: nginx
+    group: nginx
+    mode: 0644
+  with_items: "{{ sites }}"
+
+- name: Copy Site's files to Servers
+  template:
+    src: mysql.j2
+    dest: /var/www/{{item.dbname}}/mysql.php
+    owner: nginx
+    group: nginx
+    mode: 0644
+  with_items: "{{ sites }}"
+

@@ -1,0 +1,24 @@
+[{{item.dbname}}]
+listen = /var/lib/php/{{item.dbname}}.sock
+listen.owner = nginx
+listen.group = nginx
+listen.mode = 0660
+user = nginx
+group = nginx
+catch_workers_output = no
+pm = static
+pm.max_children = 5 
+pm.max_requests = 100
+
+
+slowlog = /var/log/php-fpm/{{item.dbname}}-slowlog.log
+
+php_admin_value[error_log] = /var/log/php-fpm/{{item.dbname}}.log
+php_admin_flag[log_errors] = on
+php_value[session.save_handler] = files
+php_value[session.save_path]    = /var/lib/php/{{item.dbname}}/session
+php_value[soap.wsdl_cache_dir]  = /var/lib/php/{{item.dbname}}/wsdlcache
+php_value[opcache.file_cache]  = /var/lib/php/{{item.dbname}}/opcache
+
+php_admin_value[disable_functions] = show_source system shell_exec passthru exec popen proc_open
+php_admin_value[open_basedir] = /var/www/{{item.dbname}}

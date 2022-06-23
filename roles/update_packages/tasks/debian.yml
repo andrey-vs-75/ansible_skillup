@@ -1,0 +1,31 @@
+- name: Update apt repo and cache
+  apt:
+    update_cache: yes
+    force_apt_get: yes
+    cache_valid_time: 3600
+
+- name: Upgrade all packages on servers
+  apt:
+    name: "*"
+    state: latest
+
+- name: install additional packages
+  apt:
+    name: ['wget', 'bzip2', 'vim', 'mc', 'strace', 'tcpdump', 'screen', 'tmux', 'htop', 'iotop', 'bash-completion', 'ipset', 'iptables', 'iptables-persistent', 'netfilter-persistent', 'bc', 'atop', 'sshfs', 'lvm2', 'telnet', 'lsof', 'mlocate', 'ncdu', 'net-tools']
+    state: latest
+  notify:
+    - Restart Server
+
+- name: Disable the ufw firewall
+  service:
+    name: ufw
+    state: stopped
+    enabled: false
+
+- name: Enable netfilter-persistent 
+  service:
+    name: netfilter-persistent
+    state: started
+    enabled: true
+
+

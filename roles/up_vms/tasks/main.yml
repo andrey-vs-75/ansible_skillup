@@ -1,0 +1,7 @@
+---
+# tasks file for up_vms
+- name: Up Vms
+  ansible.builtin.command: vagrant up
+  tags: up_vms
+
+- meta: refresh_inventory

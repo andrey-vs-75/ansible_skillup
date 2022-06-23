@@ -1,0 +1,31 @@
+---
+# tasks file for deploy_bases
+- name: Copy MariaDB test.sql
+  template:
+    src: test.sql.j2
+    dest: /tmp/ansible_{{item.dbname}}_test.sql
+  with_items: "{{ sites }}"
+
+#- name: create new MariaDB Database
+#  mysql_db:
+#    name: {{item.dbname}}
+#    state: present
+#  with_items: "{{ sites }}"
+
+- name: Create and Import MariaDB Databases
+  mysql_db:
+    name: "{{ item.dbname }}"
+    state: import
+    target: /tmp/ansible_{{item.dbname}}_test.sql 
+  with_items: "{{ sites }}"
+
+    
+- name: Create MariaDB User
+  mysql_user:
+    name: "{{ item.dbuser }}"
+    password: "{{ item.dbpass }}"
+    priv: "{{ item.dbname }}.*:ALL" 
+    host: '%'
+    state: present
+  with_items: "{{ sites }}"
+

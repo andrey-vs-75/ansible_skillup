@@ -1,0 +1,14 @@
+CREATE DATABASE IF NOT EXISTS {{item.dbname}};
+
+CREATE TABLE IF NOT EXISTS {{item.dbname}}.data
+(
+    PID INT NOT NULL AUTO_INCREMENT,
+    PRIMARY KEY(PID),
+    sitename VARCHAR(128),
+    hostname VARCHAR(32)
+);
+
+INSERT INTO {{item.dbname}}.data
+    (sitename, hostname)
+VALUES
+    ('{{item.name}}', '{{ansible_nodename}}');

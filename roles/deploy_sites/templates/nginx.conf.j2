@@ -1,0 +1,18 @@
+server {
+    listen {{nginx_listen_port}};
+    server_name {{item.name}} www.{{item.name}};
+    access_log /var/log/nginx/{{item.name}}.log main;
+    error_log /var/log/nginx/{{item.name}}.log debug;
+    index index.php index.html index.htm;
+    root /var/www/{{item.dbname}};
+
+    location ~ \.php$ {
+        include /etc/nginx/fastcgi_params;
+        fastcgi_pass unix:/var/lib/php/{{item.dbname}}.sock;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+}

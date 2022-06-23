@@ -1,0 +1,62 @@
+- name: Add nginx repo
+  template:
+    src: nginx.repo.j2
+    dest: /etc/yum.repos.d/nginx.repo
+
+- name: install nginx packages
+  yum:
+    name: nginx 
+    state: latest
+
+- name: Ensure nginx service is running
+  systemd:
+    name: nginx
+    state: started
+    enabled: yes
+
+#Make config file and restart nginx
+- name: copy nginx config
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+  notify:
+    - Restart nginx
+
+#Install and configure php-fpm      
+- name: Installing Remi Repository
+  yum:
+    name: https://rpms.remirepo.net/enterprise/remi-release-7.rpm
+    state: present
+
+- name: Installing php 7.4
+  yum:
+    enablerepo: "remi,remi-php74"
+    name: [ 'php', 'php-common', 'php-cli', 'php-gd', 'php-curl', 'php-mysqlnd', 'php-fpm', 'php-mysqli', 'php-mcrypt', 'php-mbstring', 'php-zip' ]
+    state: latest
+
+- name: Ensure php-fpm service is running
+  systemd:
+    name: php-fpm
+    state: started
+    enabled: yes
+
+#Make config file and restart php-fpm
+- name: copy php.ini config
+  template:
+    src: php.ini.j2
+    dest: /etc/php.ini
+  notify:
+    - Restart php-fpm
+
+#Create firewall rules + enable and start iptables
+- name: Add iptables config
+  template:
+    src: redhat-iptables.j2
+    dest: /etc/sysconfig/iptables
+
+- name: Enable and restart iptables service
+  systemd:
+    name: iptables
+    state: restarted
+    enabled: yes
+

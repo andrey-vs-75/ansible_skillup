@@ -1,0 +1,14 @@
+#
+# This group is read both by the client and the server
+# use it for options that affect everything
+#
+[client-server]
+
+[mysqld]
+bind-address = {{ mysql_bind_address }}
+query_cache_type = 1
+innodb_file_per_table = on
+# Mysql memory optimization - innodb_buffer_pool_size = 50%RAM + max_connections = 50 for 1Gb RAM
+innodb_buffer_pool_size = {{ ansible_memtotal_mb//2 }}
+max_connections = {{ ansible_memtotal_mb//20 }}
+

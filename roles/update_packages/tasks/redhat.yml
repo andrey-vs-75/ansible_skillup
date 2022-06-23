@@ -1,0 +1,23 @@
+- name: install EPEL repo
+  yum:
+    name: "epel-release"
+    state: present
+
+- name: update all packages
+  yum:
+    name: "*"
+    state: latest
+
+- name: install additional packages
+  yum:
+    name: ['wget', 'bzip2', 'vim', 'mc', 'strace', 'tcpdump', 'screen', 'tmux', 'htop', 'iotop', 'bash-completion', 'ipset-service', 'iptables-services', 'bc', 'atop', 'sshfs', 'lvm2', 'telnet', 'lsof', 'mlocate', 'ncdu', 'net-tools']
+    state: latest
+  notify:
+    - Restart Server
+
+- name: Disable the firewalld service
+  service:
+    name: firewalld
+    state: stopped
+    enabled: false
+

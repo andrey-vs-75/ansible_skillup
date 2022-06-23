@@ -1,0 +1,9 @@
+---
+# tasks file for update_packages
+- name: Update packages for RHEL
+  import_tasks: redhat.yml
+  when: ansible_facts['os_family']|lower == 'redhat'
+
+- name: Update packages for Debian
+  import_tasks: debian.yml
+  when: ansible_facts['os_family']|lower == 'debian'
