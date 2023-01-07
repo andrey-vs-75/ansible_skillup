@@ -1,6 +1,6 @@
 ---
 nginx_listen_port: 80
-#mysql_major_version must be 10.2, 10.3, 10.4 or 10.4
+#mysql_major_version must be 10.2, 10.3, 10.4 or 10.5
 mysql_major_version: 10.2
 mysql_bind_address: 0.0.0.0
 mysql_root_password: !vault |
